@@ -28,6 +28,14 @@
     </div>
     
     <script>
+        let policiesData = {};
+
+        // 预加载政策数据
+        fetch('policies.json')
+            .then(response => response.json())
+            .then(data => policiesData = data)
+            .catch(error => console.error('加载政策数据失败:', error));
+
         function comparePolicies() {
             let policy1 = document.getElementById('policy1').value;
             let policy2 = document.getElementById('policy2').value;
@@ -36,36 +44,36 @@
                 return;
             }
             
+            if (!(policy1 in policiesData) || !(policy2 in policiesData)) {
+                alert('政策数据未找到，请输入有效的政策名称');
+                return;
+            }
+            
             document.getElementById('results').classList.remove('hidden');
             
-            // 假设这里是模拟对比数据
             let summaryText = `对比 <b>${policy1}</b> 和 <b>${policy2}</b>：<br>\
-                - ${policy1} 主要影响互联网企业\
-                - ${policy2} 主要涉及数据安全\
-                - 两者均强调合规要求`;
+                - ${policiesData[policy1].摘要}<br>\
+                - ${policiesData[policy2].摘要}`;
             document.getElementById('summary').innerHTML = summaryText;
             
-            renderWordCloud();
-            renderImpactChart();
+            renderWordCloud(policiesData[policy1].关键词, policiesData[policy2].关键词);
+            renderImpactChart(policiesData[policy1].影响评分, policiesData[policy2].影响评分);
         }
 
-        function renderWordCloud() {
+        function renderWordCloud(words1, words2) {
             let chart = echarts.init(document.getElementById('keyword-cloud'));
+            let wordData = words1.map(word => ({ name: word, value: Math.random() * 100 }))
+                .concat(words2.map(word => ({ name: word, value: Math.random() * 100 })));
             let option = {
                 series: [{
                     type: 'wordCloud',
-                    data: [
-                        {name: '数据安全', value: 100},
-                        {name: '互联网监管', value: 80},
-                        {name: '合规性', value: 60},
-                        {name: '隐私保护', value: 50}
-                    ]
+                    data: wordData
                 }]
             };
             chart.setOption(option);
         }
         
-        function renderImpactChart() {
+        function renderImpactChart(scores1, scores2) {
             let chart = echarts.init(document.getElementById('impact-chart'));
             let option = {
                 radar: {
@@ -78,8 +86,8 @@
                 series: [{
                     type: 'radar',
                     data: [
-                        { value: [80, 70, 60], name: '政策1' },
-                        { value: [60, 80, 75], name: '政策2' }
+                        { value: scores1, name: '政策1' },
+                        { value: scores2, name: '政策2' }
                     ]
                 }]
             };
