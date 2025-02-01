@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>政策智能对比工具</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.1/echarts.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+    <div class="container mx-auto p-6">
+        <h1 class="text-3xl font-bold text-center mb-6">政策智能对比工具</h1>
+        
+        <!-- 搜索框 -->
+        <div class="flex justify-center gap-4 mb-6">
+            <input id="policy1" type="text" placeholder="输入政策 1" class="p-2 border rounded w-1/3">
+            <input id="policy2" type="text" placeholder="输入政策 2" class="p-2 border rounded w-1/3">
+            <button onclick="comparePolicies()" class="px-4 py-2 bg-blue-500 text-white rounded">对比</button>
+        </div>
+        
+        <!-- 结果区域 -->
+        <div id="results" class="hidden p-4 bg-white shadow rounded">
+            <h2 class="text-2xl font-semibold mb-4">对比结果</h2>
+            <div id="summary" class="mb-4"></div>
+            <div id="keyword-cloud" style="width: 100%; height: 300px;"></div>
+            <div id="impact-chart" style="width: 100%; height: 300px;"></div>
+        </div>
+    </div>
+    
+    <script>
+        function comparePolicies() {
+            let policy1 = document.getElementById('policy1').value;
+            let policy2 = document.getElementById('policy2').value;
+            if (!policy1 || !policy2) {
+                alert('请输入两个政策名称');
+                return;
+            }
+            
+            document.getElementById('results').classList.remove('hidden');
+            
+            // 假设这里是模拟对比数据
+            let summaryText = `对比 <b>${policy1}</b> 和 <b>${policy2}</b>：<br>\
+                - ${policy1} 主要影响互联网企业\
+                - ${policy2} 主要涉及数据安全\
+                - 两者均强调合规要求`;
+            document.getElementById('summary').innerHTML = summaryText;
+            
+            renderWordCloud();
+            renderImpactChart();
+        }
+
+        function renderWordCloud() {
+            let chart = echarts.init(document.getElementById('keyword-cloud'));
+            let option = {
+                series: [{
+                    type: 'wordCloud',
+                    data: [
+                        {name: '数据安全', value: 100},
+                        {name: '互联网监管', value: 80},
+                        {name: '合规性', value: 60},
+                        {name: '隐私保护', value: 50}
+                    ]
+                }]
+            };
+            chart.setOption(option);
+        }
+        
+        function renderImpactChart() {
+            let chart = echarts.init(document.getElementById('impact-chart'));
+            let option = {
+                radar: {
+                    indicator: [
+                        { name: '合规成本', max: 100 },
+                        { name: '市场影响', max: 100 },
+                        { name: '政策稳定性', max: 100 }
+                    ]
+                },
+                series: [{
+                    type: 'radar',
+                    data: [
+                        { value: [80, 70, 60], name: '政策1' },
+                        { value: [60, 80, 75], name: '政策2' }
+                    ]
+                }]
+            };
+            chart.setOption(option);
+        }
+    </script>
+</body>
+</html>
